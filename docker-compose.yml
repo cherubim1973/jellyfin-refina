@@ -1,0 +1,26 @@
+services:
+  jellyfin-refina:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jellyfin-refina:latest
+    container_name: jellyfin-refina
+    restart: unless-stopped
+    ports:
+      # Porta 8585 segura (sem colisão com os serviços do ecossistema existente)
+      - "8585:8585"
+    environment:
+      - PORT=8585
+      - SECRET_KEY=${SECRET_KEY:-defina_uma_chave_secreta_aleatoria_aqui}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - TMDB_API_KEY=${TMDB_API_KEY:-}
+      - DATA_DIR=/app/data
+    volumes:
+      - ./data:/app/data
+      - /jellynux/media:/media
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8585/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

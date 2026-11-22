@@ -1,0 +1,90 @@
+/* Jellyfin-refina Custom Styles - Dark Mode */
+:root {
+  --bg-primary: #0b0f19;
+  --bg-secondary: #111827;
+  --bg-card: #1f2937;
+  --border-color: #374151;
+  --accent-purple: #8b5cf6;
+  --accent-blue: #0ea5e9;
+  --accent-pink: #ec4899;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: #f3f4f6;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+/* Scrollbar estilizada */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Badges e Tags */
+.badge-4k {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+  font-weight: 700;
+}
+.badge-1080p {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  color: #fff;
+  font-weight: 600;
+}
+.badge-720p {
+  background: linear-gradient(135deg, #475569, #334155);
+  color: #cbd5e1;
+  font-weight: 600;
+}
+.badge-sd {
+  background: linear-gradient(135deg, #991b1b, #7f1d1d);
+  color: #fecaca;
+  font-weight: 600;
+}
+
+/* Botão Watch Trailer */
+.btn-watch-trailer {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  transition: all 0.25s ease-in-out;
+  box-shadow: 0 4px 14px 0 rgba(220, 38, 38, 0.39);
+}
+.btn-watch-trailer:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px 0 rgba(220, 38, 38, 0.55);
+}
+
+/* Cards com Glow Suave */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-3px);
+  border-color: #6366f1;
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.2);
+}
+
+/* Modal Transition */
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+}

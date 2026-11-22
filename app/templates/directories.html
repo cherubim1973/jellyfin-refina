@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Diretórios &amp; Varredura{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+
+  <!-- Cabeçalho -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+        Configuração de Diretórios
+      </h1>
+      <p class="text-sm text-gray-400 mt-1">
+        Configure os caminhos de armazenamento do servidor para Filmes, Séries e Shows e execute o scanner inteligente.
+      </p>
+    </div>
+  </div>
+
+  {% if message %}
+  <div class="p-4 rounded-xl bg-emerald-950/60 border border-emerald-800 text-emerald-200 text-sm flex items-center space-x-3">
+    <i class="fas fa-circle-check text-emerald-400 text-base"></i>
+    <span>{{ message }}</span>
+  </div>
+  {% endif %}
+
+  <!-- Resultados da Varredura (se houver) -->
+  {% if scan_results %}
+  <div class="bg-[#161e2e] border border-gray-800 rounded-2xl p-6 space-y-4">
+    <h2 class="text-base font-bold text-white flex items-center space-x-2">
+      <i class="fas fa-clipboard-check text-indigo-400"></i>
+      <span>Relatório da Varredura Recente</span>
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {% for res in scan_results %}
+      <div class="bg-[#0f172a] border border-gray-800 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-400 capitalize">{{ res.category }}</span>
+          <span class="text-[11px] text-gray-400">{{ res.scanned_files }} arquivos analisados</span>
+        </div>
+        <p class="text-xs text-gray-300 truncate" title="{{ res.path }}">{{ res.path }}</p>
+        <div class="flex items-center space-x-3 mt-3 pt-3 border-t border-gray-800/80 text-xs">
+          <span class="text-emerald-400 font-semibold">+{{ res.added_items }} novos</span>
+          <span class="text-blue-400 font-semibold">{{ res.updated_items }} atualizados</span>
+        </div>
+        {% if res.errors %}
+        <div class="mt-2 text-[11px] text-red-400">
+          {{ res.errors|length }} erro(s) registrado(s)
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Formulário de Diretórios -->
+  <div class="bg-[#161e2e] border border-gray-800 rounded-2xl p-6 sm:p-8 shadow-xl shadow-black/40">
+    <form action="/directories" method="POST" class="space-y-6">
+      
+      <!-- 1. Filmes -->
+      <div>
+        <label for="movie_dir" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-2 flex items-center space-x-2">
+          <i class="fas fa-film text-blue-400"></i>
+          <span>1. Diretório de Filmes</span>
+        </label>
+        <div class="flex items-center space-x-2">
+          <div class="relative flex-1">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-500">
+              <i class="fas fa-folder text-amber-400"></i>
+            </span>
+            <input type="text" id="movie_dir" name="movie_dir" value="{{ movie_dir }}"
+              class="w-full pl-10 pr-4 py-2.5 bg-[#0d121f] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm transition"
+              placeholder="/media/filmes ou caminho local">
+          </div>
+          <button type="button" onclick="openDirectoryBrowser('movie_dir')"
+            class="px-4 py-2.5 bg-gray-800 hover:bg-indigo-600 text-gray-200 hover:text-white rounded-xl border border-gray-700 text-xs font-semibold flex items-center space-x-1.5 transition whitespace-nowrap shadow-sm">
+            <i class="fas fa-folder-open"></i>
+            <span>Procurar</span>
+          </button>
+        </div>
+        <p class="text-[11px] text-gray-500 mt-1.5">
+          Exemplo no Docker: <code class="text-indigo-300">/media/filmes</code>
+        </p>
+      </div>
+
+      <!-- 2. Séries -->
+      <div>
+        <label for="series_dir" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-2 flex items-center space-x-2">
+          <i class="fas fa-tv text-purple-400"></i>
+          <span>2. Diretório de Séries</span>
+        </label>
+        <div class="flex items-center space-x-2">
+          <div class="relative flex-1">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-500">
+              <i class="fas fa-folder text-amber-400"></i>
+            </span>
+            <input type="text" id="series_dir" name="series_dir" value="{{ series_dir }}"
+              class="w-full pl-10 pr-4 py-2.5 bg-[#0d121f] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm transition"
+              placeholder="/media/series ou caminho local">
+          </div>
+          <button type="button" onclick="openDirectoryBrowser('series_dir')"
+            class="px-4 py-2.5 bg-gray-800 hover:bg-indigo-600 text-gray-200 hover:text-white rounded-xl border border-gray-700 text-xs font-semibold flex items-center space-x-1.5 transition whitespace-nowrap shadow-sm">
+            <i class="fas fa-folder-open"></i>
+            <span>Procurar</span>
+          </button>
+        </div>
+        <p class="text-[11px] text-gray-500 mt-1.5">
+          Exemplo no Docker: <code class="text-indigo-300">/media/series</code>
+        </p>
+      </div>
+
+      <!-- 3. Shows -->
+      <div>
+        <label for="shows_dir" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-2 flex items-center space-x-2">
+          <i class="fas fa-guitar text-emerald-400"></i>
+          <span>3. Diretório de Shows &amp; Concertos</span>
+        </label>
+        <div class="flex items-center space-x-2">
+          <div class="relative flex-1">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-500">
+              <i class="fas fa-folder text-amber-400"></i>
+            </span>
+            <input type="text" id="shows_dir" name="shows_dir" value="{{ shows_dir }}"
+              class="w-full pl-10 pr-4 py-2.5 bg-[#0d121f] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm transition"
+              placeholder="/media/shows ou caminho local">
+          </div>
+          <button type="button" onclick="openDirectoryBrowser('shows_dir')"
+            class="px-4 py-2.5 bg-gray-800 hover:bg-indigo-600 text-gray-200 hover:text-white rounded-xl border border-gray-700 text-xs font-semibold flex items-center space-x-1.5 transition whitespace-nowrap shadow-sm">
+            <i class="fas fa-folder-open"></i>
+            <span>Procurar</span>
+          </button>
+        </div>
+        <p class="text-[11px] text-gray-500 mt-1.5">
+          Exemplo no Docker: <code class="text-indigo-300">/media/shows</code>
+        </p>
+      </div>
+
+      <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-800">
+        <button type="submit"
+          class="w-full sm:w-auto px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-xl border border-gray-700 text-xs transition flex items-center justify-center space-x-2">
+          <i class="fas fa-floppy-disk"></i>
+          <span>Salvar Caminhos</span>
+        </button>
+
+        <form action="/directories/scan" method="POST" class="w-full sm:w-auto m-0 inline">
+          <button type="submit" formaction="/directories/scan" formmethod="POST"
+            class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-semibold rounded-xl text-xs shadow-lg shadow-indigo-600/30 transition flex items-center justify-center space-x-2">
+            <i class="fas fa-arrows-rotate"></i>
+            <span>Salvar e Escanear Agora</span>
+          </button>
+        </form>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Banner Informativo -->
+  <div class="p-5 rounded-2xl bg-[#0f172a] border border-gray-800 text-xs text-gray-400 space-y-2">
+    <p class="font-semibold text-gray-300 flex items-center space-x-2">
+      <i class="fas fa-info-circle text-indigo-400"></i>
+      <span>Como funciona a varredura inteligente?</span>
+    </p>
+    <p>
+      O scanner analisa recursivamente suas pastas procurando por extensões de vídeo (<code class="text-indigo-300">.mp4, .mkv, .avi, .mov, .m4v, .webm</code>), remove tags de releases (como 1080p, x264, HDR, etc.) para extrair o título limpo e ano, detecta legendas <code class="text-indigo-300">.srt</code> correspondentes e organiza tudo no banco SQLite para carregamento ultra veloz.
+    </p>
+  </div>
+
+</div>
+
+<!-- MODAL DO NAVEGADOR DE PASTAS DO SERVIDOR -->
+<div id="dirBrowserModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop p-4">
+  <div class="bg-[#161e2e] border border-gray-700 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    
+    <!-- Topo do Modal -->
+    <div class="p-5 border-b border-gray-800 flex items-center justify-between bg-[#111827]">
+      <div class="flex items-center space-x-2.5">
+        <i class="fas fa-server text-indigo-400 text-lg"></i>
+        <h3 class="text-base font-bold text-white">Explorador de Diretórios do Servidor</h3>
+      </div>
+      <button type="button" onclick="closeDirectoryBrowser()" class="text-gray-400 hover:text-white transition p-1">
+        <i class="fas fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Barra de Navegação de Caminho -->
+    <div class="px-5 py-3 bg-[#0d121f] border-b border-gray-800 flex items-center space-x-2">
+      <button type="button" id="browserParentBtn" title="Subir um nível"
+        class="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-gray-300 hover:text-white text-xs transition">
+        <i class="fas fa-arrow-up"></i>
+      </button>
+      <div id="browserCurrentPath" data-path="/media" class="flex-1 bg-[#161e2e] px-3 py-1.5 rounded-lg border border-gray-700 text-xs font-mono text-gray-200 truncate">
+        /media
+      </div>
+    </div>
+
+    <!-- Atalhos Rápidos -->
+    <div class="px-5 py-2.5 bg-[#111827]/60 border-b border-gray-800 flex items-center space-x-2 overflow-x-auto text-xs">
+      <span class="text-[11px] text-gray-500 uppercase font-semibold">Atalhos:</span>
+      <div id="browserShortcuts" class="flex items-center space-x-1.5">
+        <!-- Renderizado via JS -->
+      </div>
+    </div>
+
+    <!-- Lista de Pastas -->
+    <div id="browserFolderList" class="flex-1 overflow-y-auto p-4 space-y-1.5 min-h-[250px] max-h-[350px]">
+      <!-- Preenchido dinamicamente via JS -->
+    </div>
+
+    <!-- Rodapé do Modal -->
+    <div class="p-4 bg-[#111827] border-t border-gray-800 flex items-center justify-between">
+      <button type="button" onclick="closeDirectoryBrowser()"
+        class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-semibold transition">
+        Cancelar
+      </button>
+      <button type="button" onclick="selectCurrentFolder()"
+        class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-indigo-600/30 transition flex items-center space-x-1.5">
+        <i class="fas fa-check"></i>
+        <span>Selecionar esta pasta</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

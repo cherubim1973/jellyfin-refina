@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Configurações &amp; Chaves de API{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-8">
+
+  <!-- Header -->
+  <div>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center space-x-3">
+      <i class="fas fa-sliders text-indigo-400"></i>
+      <span>Configurações do Sistema</span>
+    </h1>
+    <p class="text-xs sm:text-sm text-gray-400 mt-1">
+      Gerencie chaves de API para enriquecimento de metadados, posters e inteligência artificial generativa.
+    </p>
+  </div>
+
+  {% if message %}
+  <div class="p-4 rounded-xl bg-emerald-950/60 border border-emerald-800 text-emerald-200 text-xs sm:text-sm flex items-center space-x-3">
+    <i class="fas fa-circle-check text-emerald-400 text-base"></i>
+    <span>{{ message }}</span>
+  </div>
+  {% endif %}
+
+  <!-- Formulário de Chaves de API -->
+  <div class="bg-[#161e2e] border border-gray-800 rounded-3xl p-6 sm:p-8 shadow-xl shadow-black/40 space-y-6">
+    <form action="/settings" method="POST" class="space-y-6">
+      
+      <!-- TMDB API Key -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label for="tmdb_api_key" class="text-xs font-bold uppercase tracking-wider text-gray-300 flex items-center space-x-2">
+            <i class="fas fa-film text-blue-400"></i>
+            <span>The Movie Database (TMDB) API Key</span>
+          </label>
+          <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer"
+            class="text-[11px] text-indigo-400 hover:text-indigo-300 flex items-center space-x-1">
+            <span>Obter chave gratuita</span>
+            <i class="fas fa-arrow-up-right-from-square text-[9px]"></i>
+          </a>
+        </div>
+        
+        <div class="flex items-center space-x-2">
+          <div class="relative flex-1">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-500">
+              <i class="fas fa-key"></i>
+            </span>
+            <input type="password" id="tmdb_api_key" name="tmdb_api_key" value="{{ tmdb_api_key }}"
+              class="w-full pl-10 pr-4 py-2.5 bg-[#0d121f] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs transition"
+              placeholder="Cole sua TMDB API Key (v3 auth)">
+          </div>
+          <button type="button" onclick="testApiKey('tmdb')" id="testTmdbBtn"
+            class="px-3.5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-xl border border-gray-700 text-xs font-semibold transition whitespace-nowrap">
+            Testar Conexão
+          </button>
+        </div>
+        <p class="text-[11px] text-gray-500 mt-1.5">
+          Utilizado para buscar pôsteres em alta definição, sinopses oficiais em PT-BR, elenco e trailers do YouTube.
+        </p>
+        <div id="tmdbTestResult" class="mt-2 text-xs hidden"></div>
+      </div>
+
+      <!-- Google Gemini API Key -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label for="gemini_api_key" class="text-xs font-bold uppercase tracking-wider text-gray-300 flex items-center space-x-2">
+            <i class="fas fa-wand-magic-sparkles text-amber-400"></i>
+            <span>Google Gemini AI API Key</span>
+          </label>
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer"
+            class="text-[11px] text-indigo-400 hover:text-indigo-300 flex items-center space-x-1">
+            <span>Obter no Google AI Studio</span>
+            <i class="fas fa-arrow-up-right-from-square text-[9px]"></i>
+          </a>
+        </div>
+        
+        <div class="flex items-center space-x-2">
+          <div class="relative flex-1">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-500">
+              <i class="fas fa-brain"></i>
+            </span>
+            <input type="password" id="gemini_api_key" name="gemini_api_key" value="{{ gemini_api_key }}"
+              class="w-full pl-10 pr-4 py-2.5 bg-[#0d121f] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs transition"
+              placeholder="Cole sua GEMINI_API_KEY">
+          </div>
+          <button type="button" onclick="testApiKey('gemini')" id="testGeminiBtn"
+            class="px-3.5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-xl border border-gray-700 text-xs font-semibold transition whitespace-nowrap">
+            Testar Conexão
+          </button>
+        </div>
+        <p class="text-[11px] text-gray-500 mt-1.5">
+          Utilizado para gerar curiosidades de bastidores, recomendações personalizadas no "O que assistir hoje?" e resumos críticos.
+        </p>
+        <div id="geminiTestResult" class="mt-2 text-xs hidden"></div>
+      </div>
+
+      <div class="pt-4 border-t border-gray-800 flex justify-end">
+        <button type="submit"
+          class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl text-xs shadow-lg shadow-indigo-600/30 transition flex items-center space-x-2">
+          <i class="fas fa-floppy-disk"></i>
+          <span>Salvar Configurações</span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Card Explicativo sobre Fallback sem API -->
+  <div class="p-6 rounded-3xl bg-[#0f172a] border border-gray-800 space-y-2 text-xs text-gray-400">
+    <h3 class="font-bold text-gray-300 flex items-center space-x-2 text-sm">
+      <i class="fas fa-shield-halved text-emerald-400"></i>
+      <span>Resiliência e Fallback 100% Funcional</span>
+    </h3>
+    <p>
+      O Jellyfin-refina funciona perfeitamente mesmo sem nenhuma chave de API externa configurada! Nesse caso, nosso motor de inteligência local extrai automaticamente os dados técnicos dos arquivos (resolução, legendas SRT, ano e título limpo) e provê links diretos para trailers oficiais no YouTube com precisão.
+    </p>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  async function testApiKey(provider) {
+    const btn = document.getElementById(provider === 'tmdb' ? 'testTmdbBtn' : 'testGeminiBtn');
+    const resultDiv = document.getElementById(provider === 'tmdb' ? 'tmdbTestResult' : 'geminiTestResult');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Testando...';
+    resultDiv.classList.remove('hidden');
+    resultDiv.className = 'mt-2 text-xs text-gray-400';
+    resultDiv.innerHTML = 'Enviando teste de conexão...';
+
+    try {
+      const endpoint = provider === 'tmdb' ? '/api/settings/test-tmdb' : '/api/settings/test-gemini';
+      const res = await fetch(endpoint, { method: 'POST' });
+      const data = await res.json();
+      
+      if (data.success) {
+        resultDiv.className = 'mt-2 text-xs text-emerald-400 font-semibold';
+        resultDiv.innerHTML = `<i class="fas fa-circle-check mr-1"></i>${data.message}`;
+      } else {
+        resultDiv.className = 'mt-2 text-xs text-red-400 font-medium';
+        resultDiv.innerHTML = `<i class="fas fa-circle-xmark mr-1"></i>${data.message}`;
+      }
+    } catch (err) {
+      resultDiv.className = 'mt-2 text-xs text-red-400 font-medium';
+      resultDiv.innerHTML = `<i class="fas fa-triangle-exclamation mr-1"></i>Falha na requisição: ${err.message}`;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Testar Conexão';
+    }
+  }
+</script>
+{% endblock %}

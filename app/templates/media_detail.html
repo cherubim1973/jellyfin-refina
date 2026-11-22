@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+
+{% block title %}{{ item.title }} ({{ item.year or "Detalhes" }}){% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-6xl mx-auto">
+
+  <!-- Navegação de Retorno -->
+  <div class="flex items-center justify-between">
+    <a href="{% if item.category == 'movie' %}/movies{% elif item.category == 'series' %}/series{% else %}/shows{% endif %}"
+      class="text-xs font-semibold text-gray-400 hover:text-white transition flex items-center space-x-2">
+      <i class="fas fa-arrow-left"></i>
+      <span>Voltar para {% if item.category == 'movie' %}Filmes{% elif item.category == 'series' %}Séries{% else %}Shows{% endif %}</span>
+    </a>
+
+    <!-- Botão Forçar Atualização de Metadados -->
+    <form action="/media/{{ item.id }}/refresh" method="POST" class="m-0">
+      <button type="submit" title="Recarregar metadados na internet (TMDB/Gemini)"
+        class="px-3.5 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl border border-gray-700 text-xs font-semibold transition flex items-center space-x-1.5 shadow-sm">
+        <i class="fas fa-arrows-rotate text-indigo-400"></i>
+        <span>Atualizar Dados</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- Hero Card Principal com Metadados Ricos -->
+  <div class="bg-[#161e2e] border border-gray-800 rounded-3xl overflow-hidden shadow-2xl relative">
+    
+    {% if meta.backdrop_url %}
+    <!-- Backdrop de Fundo com Gradiente -->
+    <div class="absolute inset-0 h-80 opacity-20 bg-cover bg-center pointer-events-none" style="background-image: url('{{ meta.backdrop_url }}');"></div>
+    <div class="absolute inset-0 h-80 bg-gradient-to-b from-transparent to-[#161e2e] pointer-events-none"></div>
+    {% endif %}
+
+    <div class="relative p-6 sm:p-10 flex flex-col md:flex-row gap-8 items-start">
+      
+      <!-- Pôster da Obra -->
+      <div class="w-full sm:w-64 flex-shrink-0">
+        <div class="aspect-[2/3] rounded-2xl overflow-hidden bg-gradient-to-br from-gray-900 to-[#1e1b4b] border border-gray-700 shadow-xl flex items-center justify-center relative group">
+          {% if meta.poster_url %}
+          <img src="{{ meta.poster_url }}" alt="{{ item.title }}" class="w-full h-full object-cover">
+          {% else %}
+          <div class="text-center p-4">
+            <i class="fas {% if item.category == 'movie' %}fa-film{% elif item.category == 'series' %}fa-tv{% else %}fa-guitar{% endif %} text-6xl text-gray-700 mb-2"></i>
+            <p class="text-xs text-gray-400 font-medium">{{ item.title }}</p>
+          </div>
+          {% endif %}
+          
+          <div class="absolute top-3 right-3 flex items-center space-x-1">
+            <span class="px-2.5 py-1 rounded-lg text-xs uppercase font-extrabold shadow-md
+              {% if item.resolution == '4K' %}badge-4k{% elif item.resolution == '1080p' %}badge-1080p{% elif item.resolution == '720p' %}badge-720p{% else %}badge-sd{% endif %}">
+              {{ item.resolution }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Informações Principais & Botão Watch Trailer -->
+      <div class="flex-1 space-y-5">
+        
+        <!-- Título e Linha de Meta -->
+        <div>
+          <div class="flex flex-wrap items-center gap-2 mb-2">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              {{ item.category }}
+            </span>
+            {% if item.year %}
+            <span class="text-xs font-semibold text-gray-400">
+              &bull; {{ item.year }}
+            </span>
+            {% endif %}
+            {% if meta.rating %}
+            <span class="text-xs font-bold text-amber-400 flex items-center space-x-1 bg-amber-400/10 px-2 py-0.5 rounded-md border border-amber-400/20">
+              <i class="fas fa-star text-amber-400 text-[10px]"></i>
+              <span>{{ meta.rating }}/10</span>
+            </span>
+            {% endif %}
+          </div>
+
+          <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+            {{ item.title }}
+          </h1>
+          {% if meta.original_title and meta.original_title != item.title %}
+          <p class="text-xs text-gray-400 mt-0.5 italic">
+            Título Original: {{ meta.original_title }}
+          </p>
+          {% endif %}
+        </div>
+
+        <!-- Gêneros -->
+        {% if meta.genres %}
+        <div class="flex flex-wrap gap-2">
+          {% for genre in meta.genres %}
+          <span class="px-3 py-1 rounded-lg bg-gray-800 text-gray-300 text-xs font-medium border border-gray-700/60">
+            {{ genre }}
+          </span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- BOTÃO OBRIGATÓRIO DE DESTAQUE: WATCH TRAILER -->
+        <div class="pt-2">
+          <a href="{{ meta.trailer_url }}" target="_blank" rel="noopener noreferrer"
+            class="btn-watch-trailer inline-flex items-center space-x-3 px-6 py-3.5 rounded-2xl text-sm font-bold uppercase tracking-wider">
+            <i class="fab fa-youtube text-xl text-white"></i>
+            <span>Watch Trailer</span>
+            <i class="fas fa-arrow-up-right-from-square text-xs opacity-75"></i>
+          </a>
+          <span class="block text-[11px] text-gray-400 mt-2">
+            Abre o trailer oficial da obra no YouTube em uma nova aba.
+          </span>
+        </div>
+
+        <!-- Sinopse -->
+        <div class="pt-2">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5 flex items-center space-x-1.5">
+            <i class="fas fa-align-left text-indigo-400"></i>
+            <span>Sinopse</span>
+          </h2>
+          <p class="text-sm text-gray-300 leading-relaxed">
+            {% if meta.gemini_synopsis %}
+              {{ meta.gemini_synopsis }}
+            {% else %}
+              {{ meta.overview }}
+            {% endif %}
+          </p>
+        </div>
+
+        <!-- Elenco Principal -->
+        {% if meta.cast %}
+        <div class="pt-2">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 flex items-center space-x-1.5">
+            <i class="fas fa-users text-indigo-400"></i>
+            <span>Elenco Principal</span>
+          </h2>
+          <div class="flex flex-wrap gap-2">
+            {% for actor in meta.cast %}
+            <span class="px-2.5 py-1 rounded-lg bg-[#0d121f] text-gray-300 text-xs border border-gray-800">
+              <strong class="text-white">{{ actor.name }}</strong>
+              {% if actor.character %}<span class="text-gray-500">como {{ actor.character }}</span>{% endif %}
+            </span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Curiosidades de Bastidores e Inteligência Artificial -->
+  {% if meta.trivia or meta.why_watch %}
+  <div class="bg-[#161e2e] border border-gray-800 rounded-3xl p-6 sm:p-8 space-y-5">
+    <div class="flex items-center space-x-2.5 pb-4 border-b border-gray-800">
+      <div class="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+        <i class="fas fa-wand-magic-sparkles"></i>
+      </div>
+      <div>
+        <h2 class="text-base font-bold text-white">Curadoria &amp; Curiosidades de Bastidores</h2>
+        <p class="text-xs text-gray-400">Insights cinematográficos e fatos interessantes sobre a produção.</p>
+      </div>
+    </div>
+
+    {% if meta.why_watch %}
+    <div class="p-4 rounded-xl bg-indigo-950/30 border border-indigo-800/40 text-xs sm:text-sm text-indigo-200">
+      <strong class="text-indigo-300 block mb-1">
+        <i class="fas fa-thumbs-up mr-1 text-amber-400"></i> Por que vale a pena assistir?
+      </strong>
+      {{ meta.why_watch }}
+    </div>
+    {% endif %}
+
+    {% if meta.trivia %}
+    <div>
+      <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Fatos Fascinantes de Produção:</h3>
+      <ul class="space-y-2 text-xs sm:text-sm text-gray-300">
+        {% for fact in meta.trivia %}
+        <li class="flex items-start space-x-2">
+          <i class="fas fa-check text-indigo-400 mt-1 text-xs"></i>
+          <span>{{ fact }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Detalhes Técnicos do Arquivo Local -->
+  <div class="bg-[#161e2e] border border-gray-800 rounded-3xl p-6 sm:p-8 space-y-4">
+    <h2 class="text-base font-bold text-white flex items-center space-x-2">
+      <i class="fas fa-circle-info text-blue-400"></i>
+      <span>Informações do Arquivo no Servidor</span>
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+      
+      <div class="p-4 rounded-xl bg-[#0d121f] border border-gray-800 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-gray-400 font-medium">Nome Original do Arquivo:</span>
+          <span class="text-gray-200 font-mono font-semibold">{{ item.original_filename }}</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-gray-400 font-medium">Resolução Detectada:</span>
+          <span class="font-bold text-indigo-400">{{ item.resolution }}</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-gray-400 font-medium">Tamanho no Disco:</span>
+          <span class="text-gray-200 font-semibold">{{ formatted_size }}</span>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-[#0d121f] border border-gray-800 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-gray-400 font-medium">Status de Legendas (.srt):</span>
+          {% if item.has_subtitles %}
+            <span class="text-emerald-400 font-bold flex items-center space-x-1">
+              <i class="fas fa-circle-check"></i>
+              <span>Legenda SRT Presente</span>
+            </span>
+          {% else %}
+            <span class="text-amber-400 font-bold flex items-center space-x-1">
+              <i class="fas fa-triangle-exclamation"></i>
+              <span>Sem Legenda (Importar no Bazarr)</span>
+            </span>
+          {% endif %}
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-gray-400 font-medium">Catalogado em:</span>
+          <span class="text-gray-300">{{ item.created_at.strftime('%d/%m/%Y às %H:%M') }}</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-gray-400 font-medium">ID no SQLite:</span>
+          <span class="text-gray-500 font-mono">#{{ item.id }}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Caminho Absoluto -->
+    <div class="p-4 rounded-xl bg-[#0d121f] border border-gray-800">
+      <span class="text-gray-400 font-medium block text-xs mb-1">Caminho Absoluto no Servidor:</span>
+      <code class="text-xs text-indigo-300 font-mono break-all select-all">{{ item.file_path }}</code>
+    </div>
+
+    <!-- Lista de Legendas SRT -->
+    {% if subtitles_list %}
+    <div class="p-4 rounded-xl bg-[#0d121f] border border-gray-800">
+      <span class="text-gray-400 font-medium block text-xs mb-2">Arquivos de Legenda Associados (.srt):</span>
+      <ul class="space-y-1 text-xs font-mono text-emerald-400">
+        {% for srt in subtitles_list %}
+        <li class="flex items-center space-x-2">
+          <i class="fas fa-file-lines text-emerald-500"></i>
+          <span class="break-all">{{ srt }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+  </div>
+
+</div>
+{% endblock %}

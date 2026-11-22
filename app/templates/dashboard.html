@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+
+  <!-- Header da Página -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+        Visão Geral do Acervo
+      </h1>
+      <p class="text-sm text-gray-400 mt-1">
+        Monitoramento em tempo real, saúde da biblioteca e inteligência multimídia.
+      </p>
+    </div>
+    
+    <div class="flex items-center space-x-3">
+      <a href="/recommendations" class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-xs tracking-wide shadow-lg shadow-indigo-600/25 transition">
+        <i class="fas fa-wand-magic-sparkles text-amber-300"></i>
+        <span>O Que Assistir Hoje?</span>
+      </a>
+      <a href="/directories" class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 font-semibold text-xs tracking-wide transition">
+        <i class="fas fa-arrows-rotate"></i>
+        <span>Escanear Mídias</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Métricas do Acervo -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    
+    <!-- Filmes -->
+    <a href="/movies" class="bg-[#161e2e] border border-gray-800/80 rounded-2xl p-5 card-hover block group">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium uppercase tracking-wider text-gray-400">Filmes</p>
+          <p class="text-3xl font-extrabold text-white mt-1 group-hover:text-indigo-400 transition">{{ total_movies }}</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+          <i class="fas fa-film text-xl"></i>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center text-xs text-gray-400">
+        <span class="text-blue-400 hover:underline flex items-center space-x-1">
+          <span>Ver catálogo</span>
+          <i class="fas fa-arrow-right text-[10px]"></i>
+        </span>
+      </div>
+    </a>
+
+    <!-- Séries -->
+    <a href="/series" class="bg-[#161e2e] border border-gray-800/80 rounded-2xl p-5 card-hover block group">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium uppercase tracking-wider text-gray-400">Séries</p>
+          <p class="text-3xl font-extrabold text-white mt-1 group-hover:text-purple-400 transition">{{ total_series }}</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+          <i class="fas fa-tv text-xl"></i>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center text-xs text-gray-400">
+        <span>{{ total_series_episodes }} episódios indexados</span>
+      </div>
+    </a>
+
+    <!-- Shows -->
+    <a href="/shows" class="bg-[#161e2e] border border-gray-800/80 rounded-2xl p-5 card-hover block group">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium uppercase tracking-wider text-gray-400">Shows &amp; Música</p>
+          <p class="text-3xl font-extrabold text-white mt-1 group-hover:text-emerald-400 transition">{{ total_shows }}</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+          <i class="fas fa-guitar text-xl"></i>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center text-xs text-gray-400">
+        <span>Concertos e apresentações</span>
+      </div>
+    </a>
+
+    <!-- Armazenamento Total -->
+    <div class="bg-[#161e2e] border border-gray-800/80 rounded-2xl p-5">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium uppercase tracking-wider text-gray-400">Armazenamento Total</p>
+          <p class="text-3xl font-extrabold text-white mt-1">{{ storage_formatted }}</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+          <i class="fas fa-hard-drive text-xl"></i>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center text-xs text-gray-400">
+        <span>{{ total_items }} arquivos de vídeo totais</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- AUDITOR DE ACERVO (SAÚDE DA BIBLIOTECA) -->
+  <div class="bg-[#161e2e] border border-gray-800 rounded-2xl p-6 sm:p-8">
+    <div class="flex items-center justify-between pb-6 border-b border-gray-800">
+      <div>
+        <div class="flex items-center space-x-2">
+          <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></div>
+          <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+            <i class="fas fa-heart-pulse text-indigo-400 mr-1"></i>
+            Auditor de Acervo &bull; Saúde da Biblioteca
+          </h2>
+        </div>
+        <p class="text-xs text-gray-400 mt-1">
+          Diagnóstico de qualidade, auditoria para Bazarr e integridade do seu servidor multimídia.
+        </p>
+      </div>
+      <span class="text-xs font-semibold px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+        Auto-Check Ativo
+      </span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+      
+      <!-- Card Legendas SRT -->
+      <div class="bg-[#0f172a] border border-gray-800/80 rounded-xl p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center space-x-1.5">
+            <i class="fas fa-closed-captioning text-amber-400"></i>
+            <span>Itens Sem Legenda (.srt)</span>
+          </span>
+          {% if no_subs_count > 0 %}
+            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-950/80 text-amber-300 border border-amber-800">
+              Atenção
+            </span>
+          {% else %}
+            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800">
+              100% OK
+            </span>
+          {% endif %}
+        </div>
+        <p class="text-2xl font-black text-white">{{ no_subs_count }}</p>
+        <p class="text-xs text-gray-400 mt-1">
+          Arquivos de mídia sem arquivos de legenda SRT encontrados na pasta.
+        </p>
+        <div class="mt-4 pt-3 border-t border-gray-800/60 flex items-center justify-between">
+          <a href="/movies?subs=without" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">
+            Ver filmes sem legenda &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Card Baixa Resolução -->
+      <div class="bg-[#0f172a] border border-gray-800/80 rounded-xl p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center space-x-1.5">
+            <i class="fas fa-triangle-exclamation text-yellow-400"></i>
+            <span>Baixa Resolução (&lt;720p / SD)</span>
+          </span>
+          {% if low_res_count > 0 %}
+            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-yellow-950/80 text-yellow-300 border border-yellow-800">
+              {{ low_res_count }} itens
+            </span>
+          {% else %}
+            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800">
+              HD / 4K Puro
+            </span>
+          {% endif %}
+        </div>
+        <p class="text-2xl font-black text-white">{{ low_res_count }}</p>
+        <p class="text-xs text-gray-400 mt-1">
+          Títulos com resolução analógica ou padrão recomendados para upgrade (1080p/4K).
+        </p>
+        <div class="mt-4 pt-3 border-t border-gray-800/60 flex items-center justify-between">
+          <a href="/movies?res=SD" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">
+            Filtrar baixa resolução &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Card Duplicados -->
+      <div class="bg-[#0f172a] border border-gray-800/80 rounded-xl p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center space-x-1.5">
+            <i class="fas fa-clone text-cyan-400"></i>
+            <span>Arquivos Duplicados</span>
+          </span>
+          {% if duplicates_count > 0 %}
+            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-cyan-950/80 text-cyan-300 border border-cyan-800">
+              Alerta
+            </span>
+          {% else %}
+            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800">
+              Sem duplicatas
+            </span>
+          {% endif %}
+        </div>
+        <p class="text-2xl font-black text-white">{{ duplicates_count }}</p>
+        <p class="text-xs text-gray-400 mt-1">
+          Títulos repetidos ocupando espaço de armazenamento duplicado.
+        </p>
+        <div class="mt-4 pt-3 border-t border-gray-800/60 flex items-center justify-between">
+          <span class="text-xs text-gray-500">
+            {% if duplicates_count == 0 %}Acervo limpo e otimizado{% else %}Verifique nas listagens{% endif %}
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Itens Recentes do Acervo -->
+  <div class="space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+        <i class="fas fa-clock-rotate-left text-indigo-400"></i>
+        <span>Adicionados Recentemente</span>
+      </h2>
+      <a href="/movies" class="text-xs font-medium text-indigo-400 hover:text-indigo-300">
+        Ver acervo completo &rarr;
+      </a>
+    </div>
+
+    {% if recent_items %}
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
+      {% for item in recent_items %}
+      <a href="/media/{{ item.id }}" class="bg-[#161e2e] border border-gray-800 rounded-xl overflow-hidden card-hover group flex flex-col justify-between">
+        <div class="aspect-video bg-gradient-to-br from-gray-900 to-indigo-950/40 relative flex items-center justify-center p-3 text-center">
+          <i class="fas {% if item.category == 'movie' %}fa-film{% elif item.category == 'series' %}fa-tv{% else %}fa-guitar{% endif %} text-3xl text-gray-700 group-hover:text-indigo-400 transition-colors"></i>
+          
+          <!-- Badges de Resolução e Legenda -->
+          <div class="absolute top-2 right-2 flex items-center space-x-1.5">
+            <span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold 
+              {% if item.resolution == '4K' %}badge-4k{% elif item.resolution == '1080p' %}badge-1080p{% elif item.resolution == '720p' %}badge-720p{% else %}badge-sd{% endif %}">
+              {{ item.resolution }}
+            </span>
+          </div>
+
+          {% if item.has_subtitles %}
+          <div class="absolute bottom-2 left-2 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-800 flex items-center space-x-1">
+            <i class="fas fa-closed-captioning"></i>
+            <span>SRT</span>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="p-3.5">
+          <h3 class="text-sm font-bold text-gray-200 group-hover:text-indigo-300 transition truncate" title="{{ item.title }}">
+            {{ item.title }}
+          </h3>
+          <div class="flex items-center justify-between text-xs text-gray-400 mt-1">
+            <span>{{ item.year or "N/D" }}</span>
+            <span class="capitalize text-[11px] text-gray-500">{{ item.category }}</span>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="p-12 text-center bg-[#161e2e] border border-gray-800 rounded-2xl">
+      <i class="fas fa-folder-open text-4xl text-gray-600 mb-3"></i>
+      <h3 class="text-base font-bold text-gray-300">Nenhum arquivo catalogado ainda</h3>
+      <p class="text-xs text-gray-400 max-w-md mx-auto mt-1 mb-4">
+        Configure as pastas de Filmes, Séries e Shows e execute sua primeira varredura para popular a biblioteca.
+      </p>
+      <a href="/directories" class="inline-flex items-center space-x-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition">
+        <i class="fas fa-gear"></i>
+        <span>Configurar Diretórios Agora</span>
+      </a>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
