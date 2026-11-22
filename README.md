@@ -150,6 +150,18 @@ jelly-refina-app/
 cp .env.example .env
 # Edite o .env se desejar informar as chaves antecipadamente
 ```
+### Observação: ⚠️ Permissões da Pasta de Dados (Obrigatório antes de iniciar)
+
+Por segurança, o contêiner executa a aplicação internamente com um usuário restrito sem privilégios de `root` (**UID/GID `10001`**). Se o Docker criar a pasta `./data` automaticamente, ela pertencerá ao `root` e impedirá a criação do banco de dados SQLite (`unable to open database file`).
+
+Antes de subir o contêiner pela primeira vez, crie a pasta e ajuste a propriedade na raiz do projeto:
+
+```bash
+mkdir -p data && chown -R 10001:10001 data
+```
+
+> **Dica:** Caso não esteja operando como `root`, utilize `sudo chown -R 10001:10001 data`. Se os seus diretórios de mídia no servidor tiverem permissões restritas, garanta também que o usuário `10001` possua permissão de leitura nas pastas mapeadas em `/media`.
+
 
 ### 2. Construir e iniciar o container
 ```bash
@@ -233,3 +245,4 @@ git push -u origin main
 3. **Senhas Fortes com Bcrypt**: Hashes gerados com 12 salt rounds.
 4. **Proteção de Sessão**: Cookies assinados criptograficamente com flags `HttpOnly` e `SameSite=Lax`.
 5. **Prevenção de Colisão de Portas**: Validação nativa que impede a inicialização nas portas reservadas do ecossistema multimídia.
+   
